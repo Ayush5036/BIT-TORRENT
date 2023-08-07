@@ -1,4 +1,7 @@
 package main
+import(
+	"net"
+)
 
 type Piece struct {
 	index  int
@@ -42,4 +45,13 @@ type annResp struct {
 	seeders       uint32
 	leechers      uint32
 	peers         []Peer
+}
+
+type PeerConnection struct {
+	conn       net.Conn
+	peer       Peer
+	peerId     []byte
+	choked     bool
+	interested bool
+	bitfield   *[]bool
 }

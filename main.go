@@ -11,39 +11,37 @@ import (
 )
 
 func main() {
-	// Generating a random peer id 
+	// Generating a random peer id
 	rand.Read(PEER_ID)
 
-
+	// getting the path to torrent file as an argument
 	arg := os.Args[1:]
 	file, err := os.Open(arg[0])
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
+	path = arg[1]
 
-	info := bencodeTorrent{}
+	// parsing the torrent file
+	info = bencodeTorrent{}
 	err = bencode.Unmarshal(file, &info)
 	if err != nil {
 		panic(err)
 	}
+	piecelength = info.Info.PieceLength
 
-	fmt.Println(arg)
-	fmt.Println(file)
-	fmt.Println(info.Announce)
-
+	// getting the length of torrent
 	for i := range info.Info.Files {
 		info.Info.Length += info.Info.Files[i].Length
 	}
 
-	lastLen := info.Info.Length % info.Info.PieceLength
-	if lastLen == 0 {
-		lastLen = info.Info.PieceLength
+	lastpieceLength := info.Info.Length % info.Info.PieceLength
+	if lastpieceLength == 0 {
+		lastpieceLength = info.Info.PieceLength
 	}
-
 	piecesString := info.Info.Pieces
 	pieces = make([]*Piece, len(piecesString)/20)
-
 	for i := 0; i < len(piecesString); i += 20 {
 		var temp Piece
 		temp.index = i / 20
@@ -51,7 +49,7 @@ func main() {
 			temp.hash[j] = piecesString[i+j]
 		}
 		if i+20 == len(piecesString) {
-			temp.length = lastLen
+			temp.length = lastpieceLength
 		} else {
 			temp.length = info.Info.PieceLength
 		}
@@ -59,21 +57,23 @@ func main() {
 		pieces[i/20] = &temp
 	}
 
+	// parsing the torrent file using go-torrent-parser
 	torrent, err := gotorrentparser.ParseFromFile(arg[0])
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(torrent)
-	fmt.Println(arg[0])
-
 
 	workQueue := make(chan *Piece, len(pieces))
 	for i := range pieces {
 		workQueue <- pieces[i]
 	}
 
-	
+	// Starting download
+	go startDownload(torrent, workQueue)
 
-	// fmt.Println("Length :", info.Info.PieceLength, "\nFiles:", info.Info.Files)
+	for len(pieceDone) != len(pieces) {
+		fmt.Println("download = ", float64(len(pieceDone))/float64(len(pieces))*100, "%")
+		fmt.Println("active peers = ", len(listOfPeers))
+		time.Sleep(10 * time.Second)
+	}
 }
