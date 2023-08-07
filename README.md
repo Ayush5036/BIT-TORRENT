@@ -1,4 +1,4 @@
-﻿# Bit-Torrent
+# BitTorrent
 
 ## Introduction
 
@@ -12,21 +12,29 @@ To clone this GitHub repository, use the following command:
 git clone https://github.com/Suggest-Name/BIT-TORRENT.git
 ```
 
-## Description
+## Running the BitTorrent Client
 
-BitTorrent is a peer-to-peer file-sharing protocol that enables efficient distribution of large files across the internet. It breaks down the file into smaller pieces and allows users (peers) to download and upload those pieces simultaneously. Peers are connected in a decentralized manner without the need for a central server, which makes BitTorrent efficient and scalable.
+To run the BitTorrent client after installation, use the following command:
 
-In this project, we have developed a basic BitTorrent client using GoLang. The client is capable of forming connections with peers and the tracker using TCP for sharing and downloading files.
+```
+go run . "path to torrent" "path to download destination" > output.txt 2> error.txt
+```
+
+For example:
+
+```
+go run . torrent/0.torrent download > output.txt 2> error.txt
+```
+
+Replace "torrent/0.torrent" with the path to the .torrent file you want to download, and "download" with the folder where you want to save the downloaded files.
+
+This command will execute the BitTorrent client, and the standard output will be redirected to the "output.txt" file, while the standard error will be redirected to the "error.txt" file for better logging.
 
 ## Currently Working On
 
 - NAT Traversal
 - Distributed Hash Table (DHT)
 - Supporting Magnet Links using external packages
-
-## Contribution
-
-We welcome contributions to this project. If you want to contribute, feel free to create a pull request with your proposed changes or open an issue to discuss new features, improvements, or bug fixes.
 
 ## Contact
 
